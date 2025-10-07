@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ParsingResult(
     val filename: String,
-    val totalEntries: Int,
     val totalSize: Long,
     val entries: List<Entry>
 )
