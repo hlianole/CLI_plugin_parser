@@ -3,6 +3,7 @@ package com.hlianole.jetbrains.internship.parser
 import com.hlianole.jetbrains.internship.model.ParsingResult
 import com.hlianole.jetbrains.internship.model.CmpResult
 import com.hlianole.jetbrains.internship.model.Entry
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.security.MessageDigest
 import java.util.zip.ZipFile
@@ -36,7 +37,6 @@ class JarZipParser {
 
         return ParsingResult(
             filename = file.name,
-            totalEntries = entries.size,
             totalSize = totalSize,
             entries = entries.sortedBy {
                 it.path
@@ -44,7 +44,10 @@ class JarZipParser {
         )
     }
 
-    fun compare(parsingResult1: ParsingResult, parsingResult2: ParsingResult): CmpResult {
+    fun compare(file1: File, file2: File): CmpResult {
+        val parsingResult1 = parseFile(file1)
+        val parsingResult2 = parseFile(file2)
+
         val map1 = parsingResult1.entries.associateBy {
             it.path
         }
@@ -98,6 +101,16 @@ class JarZipParser {
             onlyInFirst = onlyInFirst,
             onlyInSecond = onlyInSecond
         )
+    }
+
+    private fun parseFile(file: File): ParsingResult {
+        try {
+            return Json.decodeFromString<ParsingResult>(
+                file.readText()
+            )
+        } catch (e: Exception) {
+            throw RuntimeException("Could not read file: ${file.path}  ->  Must have JSON format and correct structure")
+        }
     }
 
     private fun calculateHash(data: ByteArray): String {

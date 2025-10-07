@@ -2,7 +2,6 @@ package com.hlianole.jetbrains.internship
 
 import com.hlianole.jetbrains.internship.model.CmpResult
 import com.hlianole.jetbrains.internship.parser.JarZipParser
-import com.hlianole.jetbrains.internship.model.ParsingResult
 import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.system.exitProcess
@@ -73,37 +72,20 @@ private fun doCompare(
         }
         throw IllegalArgumentException(sb.lines().joinToString("\n"))
     }
-
-    val analysis1 = parseAnalysisFile(file1)
-    val analysis2 = parseAnalysisFile(file2)
-
-    val result = parser.compare(analysis1, analysis2)
+    val result = parser.compare(file1, file2)
 
     val strictSimilarity = "%.2f".format(result.strictSimilarity)
     val similarity = "%.2f".format(result.similarity)
 
-    printCompareResult(strictSimilarity, similarity, result, analysis1, analysis2)
+    printCompareResult(strictSimilarity, similarity, result)
 }
 
 
-
-
-private fun parseAnalysisFile(file: File): ParsingResult {
-    try {
-        return Json.decodeFromString<ParsingResult>(
-            file.readText()
-        )
-    } catch (e: Exception) {
-        throw RuntimeException("Could not read file: ${file.path}  ->  Must have JSON format and correct structure")
-    }
-}
 
 private fun printCompareResult(
     strictSimilarity: String,
     similarity: String,
-    result: CmpResult,
-    analysis1: ParsingResult,
-    analysis2: ParsingResult
+    result: CmpResult
 ) {
     println(
         """
@@ -116,8 +98,8 @@ private fun printCompareResult(
           Modified (same path): ${result.modified}
           Common (total): ${result.commonEntries + result.modified}
                                                                  
-          Only in ${analysis1.filename}: ${result.onlyInFirst}
-          Only in ${analysis2.filename}: ${result.onlyInSecond}
+          Only in ${result.file1}: ${result.onlyInFirst}
+          Only in ${result.file2}: ${result.onlyInSecond}
           
         =========================================================================
     """.trimIndent()
