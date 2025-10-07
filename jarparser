@@ -1,0 +1,10 @@
+#!/bin/bash
+
+JAR_PATH="build/libs/app.jar"
+
+if [ ! -f $JAR_PATH ]; then
+  echo "jar file not found. use: ./gradlew clean build"
+  exit 1
+fi
+
+java -jar "$JAR_PATH" "$@"
